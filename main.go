@@ -1,9 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"os"
 	"rssgator/internal/config"
+	"rssgator/internal/database"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -14,6 +18,13 @@ func main() {
 	programState := &state{
 		config: &conf,
 	}
+	// DATABASE STUFF
+	db, err := sql.Open("postgres", conf.DbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	dbQueries := database.New(db)
+	programState.db = dbQueries
 
 	/*
 		conf.SetUser("nico")
@@ -28,6 +39,7 @@ func main() {
 	}
 
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 	cliArgs := os.Args
 	if len(cliArgs) < 2 {
 		log.Fatal("missing required arguments")
@@ -42,4 +54,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 }
