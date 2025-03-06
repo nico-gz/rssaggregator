@@ -26,14 +26,6 @@ func main() {
 	dbQueries := database.New(db)
 	programState.db = dbQueries
 
-	/*
-		conf.SetUser("nico")
-		conf, err = config.Read()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(conf)
-	*/
 	cmds := commands{
 		commandsRegistered: make(map[string]func(*state, command) error),
 	}
@@ -42,6 +34,7 @@ func main() {
 	cmds.register("login", handlerLogin)
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerUsers)
 	cliArgs := os.Args
 	if len(cliArgs) < 2 {
 		log.Fatal("missing required arguments")
