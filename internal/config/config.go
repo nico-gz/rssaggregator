@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 )
 
@@ -32,7 +31,6 @@ func (c Config) write() error {
 		return err
 	}
 	os.WriteFile(configPath, jsonData, os.ModeAppend)
-	fmt.Println("ok")
 	return nil
 }
 

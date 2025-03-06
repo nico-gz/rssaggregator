@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"os"
 )
 
 /*
@@ -14,11 +16,17 @@ func handlerLogin(s *state, cmd command) error {
 		return fmt.Errorf("missing required argument. usage: %s <name>", cmd.Name)
 	}
 	name := cmd.Args[0]
-	err := s.config.SetUser(name)
+	user, err := s.db.GetUser(context.Background(), name)
 	if err != nil {
-		return fmt.Errorf("failed setting user: %w", err)
+		fmt.Printf("The user '%s' does not exist\n", name)
+		os.Exit(1)
+	}
+	err = s.config.SetUser(user.Name)
+	if err != nil {
+		fmt.Println(err)
+		return err
 	}
 
-	fmt.Println("user successfully updated")
+	fmt.Println("user successfully updated!")
 	return nil
 }
