@@ -30,7 +30,7 @@ func handlerRegister(s *state, cmd command) error {
 		os.Exit(1)
 	}
 
-	s.config.CurrentUserName = newUser.Name
+	s.config.SetUser(newUser.Name)
 	fmt.Println("User successfully created:")
 	fmt.Printf("Name: %s | Created at: %v | ID: %v", newUser.Name, curTime, newUser.ID)
 	return nil
