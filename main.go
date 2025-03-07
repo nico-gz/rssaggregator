@@ -35,6 +35,7 @@ func main() {
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+	cmds.register("agg", handlerFeeds)
 	cliArgs := os.Args
 	if len(cliArgs) < 2 {
 		log.Fatal("missing required arguments")
