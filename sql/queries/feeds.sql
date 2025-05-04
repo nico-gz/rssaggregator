@@ -11,4 +11,4 @@ VALUES (
 RETURNING *;
 
 -- name: GetFeeds :many
-SELECT * FROM users;
+SELECT * FROM feeds;
