@@ -38,6 +38,7 @@ func main() {
 	cmds.register("agg", handlerAgg)
 	cmds.register("addfeed", handlerAddFeed)
 	cmds.register("feeds", handlerGetFeeds)
+	cmds.register("follow", handlerFollow)
 	cliArgs := os.Args
 	if len(cliArgs) < 2 {
 		log.Fatal("missing required arguments")

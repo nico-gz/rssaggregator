@@ -55,6 +55,60 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
+const createFeedFollow = `-- name: CreateFeedFollow :one
+
+WITH new_row AS (
+    INSERT INTO feed_follows (id, created_at, updated_at, user_id, feed_id)
+        VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5
+        )
+    RETURNING id, created_at, updated_at, user_id, feed_id
+)
+SELECT new_row.id, new_row.created_at, new_row.updated_at, new_row.user_id, new_row.feed_id
+FROM new_row
+INNER JOIN users ON new_row.user_id = users.user_id
+INNER JOIN feeds ON new_row.feed_id = feeds.feed_id
+`
+
+type CreateFeedFollowParams struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	FeedID    uuid.UUID
+}
+
+type CreateFeedFollowRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	UserID    uuid.UUID
+	FeedID    uuid.UUID
+}
+
+func (q *Queries) CreateFeedFollow(ctx context.Context, arg CreateFeedFollowParams) (CreateFeedFollowRow, error) {
+	row := q.db.QueryRowContext(ctx, createFeedFollow,
+		arg.ID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.UserID,
+		arg.FeedID,
+	)
+	var i CreateFeedFollowRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+		&i.FeedID,
+	)
+	return i, err
+}
+
 const getFeeds = `-- name: GetFeeds :many
 SELECT id, created_at, updated_at, name, url, user_id FROM feeds
 `

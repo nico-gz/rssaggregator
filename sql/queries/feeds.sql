@@ -22,13 +22,11 @@ WITH new_row AS (
             $2,
             $3,
             $4,
-            $5,
-            $6
+            $5
         )
     RETURNING *
-);
-
+)
 SELECT new_row.*
 FROM new_row
-INNER JOIN ON users ON new_row.user_id = users.user_id
-INNER JOIN ON feeds ON new_row.feed_id = feeds.feed_id;
+INNER JOIN users ON new_row.user_id = users.user_id
+INNER JOIN feeds ON new_row.feed_id = feeds.feed_id;
