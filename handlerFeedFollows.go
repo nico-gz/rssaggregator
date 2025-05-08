@@ -1,14 +1,45 @@
 package main
 
-import "fmt"
+import (
+	"context"
+	"fmt"
+	"log"
+	"rssgator/internal/database"
+	"time"
 
-// Add a follow command. It takes a single url argument and creates a new feed follow record for the current user.
-// It should print the name of the feed and the current user once the record is created (which the query we just made should support).
-// You'll need a query to look up feeds by URL.
+	"github.com/google/uuid"
+)
+
 func handlerFollow(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("missing required argument. usage: %s <url>", cmd.Name)
 	}
+	url := cmd.Args[0]
+	// Fetch user ID from DB
+	curUsername := s.config.CurrentUserName
+	user, err := s.db.GetUser(context.Background(), curUsername)
+	if err != nil {
+		return fmt.Errorf("failed fetching user from DB: %s", err)
+	}
+	// Fetch feed ID from DB
+	feed, err := s.db.GetFeedByUrl(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("failed fetching feed from DB: %s", err)
+	}
+
+	curTime := time.Now().UTC()
+	_, err = s.db.CreateFeedFollow(context.Background(), database.CreateFeedFollowParams{
+		ID:        uuid.New(),
+		CreatedAt: curTime,
+		UpdatedAt: curTime,
+		UserID:    user.ID,
+		FeedID:    feed.ID,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("User %s now follows feed %s", user.Name, feed.Name)
+	fmt.Println()
 
 	return nil
 }
