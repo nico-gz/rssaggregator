@@ -100,30 +100,25 @@ func (q *Queries) GetFeedFollows(ctx context.Context) ([]FeedFollow, error) {
 }
 
 const getFeedFollowsForUser = `-- name: GetFeedFollowsForUser :many
-SELECT users.name, feeds.name FROM feed_follows
+SELECT feeds.name FROM feed_follows
 INNER JOIN users ON feed_follows.user_id = users.user_id
 INNER JOIN feeds ON feed_follows.feed_id = feeds.feed_id
-WHERE feed_follows.user_id = $1
+WHERE users.name = $1
 `
 
-type GetFeedFollowsForUserRow struct {
-	Name   string
-	Name_2 string
-}
-
-func (q *Queries) GetFeedFollowsForUser(ctx context.Context, userID uuid.UUID) ([]GetFeedFollowsForUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getFeedFollowsForUser, userID)
+func (q *Queries) GetFeedFollowsForUser(ctx context.Context, name string) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getFeedFollowsForUser, name)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetFeedFollowsForUserRow
+	var items []string
 	for rows.Next() {
-		var i GetFeedFollowsForUserRow
-		if err := rows.Scan(&i.Name, &i.Name_2); err != nil {
+		var name string
+		if err := rows.Scan(&name); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, name)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

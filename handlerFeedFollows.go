@@ -15,7 +15,7 @@ func handlerFollow(s *state, cmd command) error {
 		return fmt.Errorf("missing required argument. usage: %s <url>", cmd.Name)
 	}
 	url := cmd.Args[0]
-	// Fetch user ID from DB
+	// Fetch current user ID from DB
 	curUsername := s.config.CurrentUserName
 	user, err := s.db.GetUser(context.Background(), curUsername)
 	if err != nil {
@@ -45,15 +45,18 @@ func handlerFollow(s *state, cmd command) error {
 }
 
 func handlerGetFeedFollows(s *state, cmd command) error {
-	// Fetch user ID from DB
+	// Fetch current user ID from DB
 	curUsername := s.config.CurrentUserName
-	user, err := s.db.GetUser(context.Background(), curUsername)
-	if err != nil {
-		return fmt.Errorf("failed fetching user from DB: %s", err)
-	}
 	fmt.Printf("Printing all feeds %s is following", s.config.CurrentUserName)
-	// REMOVE THIS PRINTLN
-	fmt.Println(user)
+	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), curUsername)
+	if err != nil {
+		return fmt.Errorf("failed fetching feed follows from DB: %s", err)
+	}
+
+	for _, feedFollow := range feedFollows {
+		fmt.Printf("* %s\n", feedFollow)
+	}
+	fmt.Println()
 
 	return nil
 }
