@@ -43,3 +43,17 @@ func handlerFollow(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerGetFeedFollows(s *state, cmd command) error {
+	// Fetch user ID from DB
+	curUsername := s.config.CurrentUserName
+	user, err := s.db.GetUser(context.Background(), curUsername)
+	if err != nil {
+		return fmt.Errorf("failed fetching user from DB: %s", err)
+	}
+	fmt.Printf("Printing all feeds %s is following", s.config.CurrentUserName)
+	// REMOVE THIS PRINTLN
+	fmt.Println(user)
+
+	return nil
+}
