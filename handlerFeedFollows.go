@@ -10,17 +10,11 @@ import (
 	"github.com/google/uuid"
 )
 
-func handlerFollow(s *state, cmd command) error {
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("missing required argument. usage: %s <url>", cmd.Name)
 	}
 	url := cmd.Args[0]
-	// Fetch current user ID from DB
-	curUsername := s.config.CurrentUserName
-	user, err := s.db.GetUser(context.Background(), curUsername)
-	if err != nil {
-		return fmt.Errorf("failed fetching user from DB: %s", err)
-	}
 	// Fetch feed ID from DB
 	feed, err := s.db.GetFeedByUrl(context.Background(), url)
 	if err != nil {
@@ -44,9 +38,8 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerGetFeedFollows(s *state, cmd command) error {
-	// Fetch current user ID from DB
-	curUsername := s.config.CurrentUserName
+func handlerGetFeedFollows(s *state, cmd command, user database.User) error {
+	curUsername := user.Name
 	fmt.Printf("Printing all feeds %s is following:\n", s.config.CurrentUserName)
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), curUsername)
 	if err != nil {

@@ -25,18 +25,14 @@ func handlerAgg(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 2 {
 		return fmt.Errorf("this command only accepts 2 arguments, ex: %s <name> <url>", cmd.Name)
 	}
+
 	name := cmd.Args[0]
 	feedUrl := cmd.Args[1]
 	curTime := time.Now().UTC()
-
-	user, err := s.db.GetUser(context.Background(), s.config.CurrentUserName)
-	if err != nil {
-		return err
-	}
 
 	feed, err := s.db.CreateFeed(context.Background(), database.CreateFeedParams{
 		ID:        uuid.New(),
