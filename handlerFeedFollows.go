@@ -52,3 +52,26 @@ func handlerGetFeedFollows(s *state, cmd command, user database.User) error {
 
 	return nil
 }
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("missing required argument. usage: %s <url>", cmd.Name)
+	}
+	url := cmd.Args[0]
+
+	feed, err := s.db.GetFeedByUrl(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("failed fetching feed from DB: %w", err)
+	}
+
+	err = s.db.DeleteFeedFollow(context.Background(), database.DeleteFeedFollowParams{
+		UserID: user.ID,
+		FeedID: feed.ID,
+	})
+
+	if err != nil {
+		return fmt.Errorf("failed to delete feed follow: %w", err)
+	}
+
+	return nil
+}

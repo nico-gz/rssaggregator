@@ -12,7 +12,7 @@ ALL HANDLER FUNCS SHOULD SHARE THIS SIGNATURE
 */
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
-		return fmt.Errorf("missing required argument. usage: %w <name>", cmd.Name)
+		return fmt.Errorf("missing required argument. usage: %s <name>", cmd.Name)
 	}
 	name := cmd.Args[0]
 	user, err := s.db.GetUser(context.Background(), name)
