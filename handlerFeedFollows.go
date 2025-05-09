@@ -18,7 +18,7 @@ func handlerFollow(s *state, cmd command, user database.User) error {
 	// Fetch feed ID from DB
 	feed, err := s.db.GetFeedByUrl(context.Background(), url)
 	if err != nil {
-		return fmt.Errorf("failed fetching feed from DB: %s", err)
+		return fmt.Errorf("failed fetching feed from DB: %w", err)
 	}
 
 	curTime := time.Now().UTC()
@@ -43,7 +43,7 @@ func handlerGetFeedFollows(s *state, cmd command, user database.User) error {
 	fmt.Printf("Printing all feeds %s is following:\n", s.config.CurrentUserName)
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), curUsername)
 	if err != nil {
-		return fmt.Errorf("failed fetching feed follows from DB: %s", err)
+		return fmt.Errorf("failed fetching feed follows from DB: %w", err)
 	}
 
 	for _, feedFollow := range feedFollows {
