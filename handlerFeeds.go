@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"rssgator/internal/database"
 	"time"
 
@@ -15,14 +14,20 @@ TEMPORARY HANDLER TO CALL fetchFeed from CLI
 Prints the feed struct to console
 */
 func handlerAgg(s *state, cmd command) error {
-	testUrl := "https://www.wagslane.dev/index.xml"
-	feed, err := fetchFeed(context.Background(), testUrl)
-	if err != nil {
-		log.Fatal(err)
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("missing required argument. usage: %s <time>\ntime is a string containing the number of time units, ex: '10s' for 10 seconds", cmd.Name)
 	}
-	fmt.Println(feed)
 
-	return nil
+	timeBetweenRequests, err := time.ParseDuration(cmd.Args[0])
+	if err != nil {
+		return fmt.Errorf("failed to parse time string: %w", err)
+	}
+	fmt.Printf("Collecting feeds every %v\n", timeBetweenRequests)
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
+
 }
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
