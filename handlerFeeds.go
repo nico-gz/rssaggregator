@@ -9,10 +9,6 @@ import (
 	"github.com/google/uuid"
 )
 
-/*
-TEMPORARY HANDLER TO CALL fetchFeed from CLI
-Prints the feed struct to console
-*/
 func handlerAgg(s *state, cmd command) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("missing required argument. usage: %s <time>\ntime is a string containing the number of time units, ex: '10s' for 10 seconds", cmd.Name)

@@ -2,13 +2,18 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/xml"
 	"fmt"
 	"html"
 	"io"
 	"log"
 	"net/http"
+	"rssgator/internal/database"
+	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type RSSFeed struct {
@@ -73,8 +78,39 @@ func scrapeFeeds(s *state) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	timestampFormat := "Sun, 22 Sep 2019 00:00:00 +0000"
 
 	for _, item := range feed.Channel.Item {
-		fmt.Printf("* %s\n", item.Title)
+		publishedDate, err := time.Parse(item.PubDate, timestampFormat)
+		if err != nil {
+			fmt.Println("Error parsing publish time")
+			fmt.Println(item.PubDate)
+		}
+		postDescription := sql.NullString{
+			String: item.Description,
+			Valid:  true,
+		}
+
+		if item.Description == "" {
+			postDescription.Valid = false
+		}
+
+		_, err = s.db.CreatePost(context.Background(), database.CreatePostParams{
+			ID:          uuid.New(),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
+			Title:       item.Title,
+			Url:         item.Link,
+			Description: postDescription,
+			PublishedAt: publishedDate,
+			FeedID:      feedToFetch.ID,
+		})
+
+		// Scuffed validation for duplicate urls
+		errString := fmt.Sprintf("%v", err)
+		if err != nil && !strings.Contains(errString, "pq: duplicate key value violates unique constraint") {
+			fmt.Println("ERROR while creating post")
+			log.Fatal(err)
+		}
 	}
 }

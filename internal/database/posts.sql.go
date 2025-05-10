@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const createPost = `-- name: createPost :one
+const createPost = `-- name: CreatePost :one
 INSERT INTO posts (id, created_at, updated_at, title, url, description, published_at, feed_id)
 VALUES (
     $1,
@@ -28,18 +28,18 @@ VALUES (
 RETURNING id, created_at, updated_at, title, url, description, published_at, feed_id
 `
 
-type createPostParams struct {
+type CreatePostParams struct {
 	ID          uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Title       string
 	Url         string
 	Description sql.NullString
-	PublishedAt sql.NullTime
+	PublishedAt time.Time
 	FeedID      uuid.UUID
 }
 
-func (q *Queries) createPost(ctx context.Context, arg createPostParams) (Post, error) {
+func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
 	row := q.db.QueryRowContext(ctx, createPost,
 		arg.ID,
 		arg.CreatedAt,
@@ -64,7 +64,7 @@ func (q *Queries) createPost(ctx context.Context, arg createPostParams) (Post, e
 	return i, err
 }
 
-const getPostsForuser = `-- name: getPostsForuser :many
+const getPostsForUser = `-- name: GetPostsForUser :many
 SELECT title, posts.url, description, posts.created_at, posts.updated_at
 FROM posts
 INNER JOIN feeds ON feeds.id = posts.feed_id
@@ -73,7 +73,7 @@ WHERE users.id = $1
 ORDER BY posts.created_at DESC
 `
 
-type getPostsForuserRow struct {
+type GetPostsForUserRow struct {
 	Title       string
 	Url         string
 	Description sql.NullString
@@ -81,15 +81,15 @@ type getPostsForuserRow struct {
 	UpdatedAt   time.Time
 }
 
-func (q *Queries) getPostsForuser(ctx context.Context, id uuid.UUID) ([]getPostsForuserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getPostsForuser, id)
+func (q *Queries) GetPostsForUser(ctx context.Context, id uuid.UUID) ([]GetPostsForUserRow, error) {
+	rows, err := q.db.QueryContext(ctx, getPostsForUser, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []getPostsForuserRow
+	var items []GetPostsForUserRow
 	for rows.Next() {
-		var i getPostsForuserRow
+		var i GetPostsForUserRow
 		if err := rows.Scan(
 			&i.Title,
 			&i.Url,
