@@ -1,8 +1,10 @@
 # rssaggregator
-CLI app to follow RSS feeds
+CLI app to follow RSS feeds.
 
----
-**sqlc** was used to generate the db models and **goose** was used to manage db migrations
+## Requirements
+- Go
+- PostgreSQL running locally
 
+## Tools used
 > - https://sqlc.dev/
 > - https://github.com/pressly/goose
